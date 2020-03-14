@@ -1,5 +1,8 @@
 import * as p5 from "p5";
 
+let api =
+  "https://qrng.anu.edu.au/API/jsonI.php?length=1024&type=uint16&size=1024";
+
 const canvasWidth = 640;
 const canvasHeight = canvasWidth;
 const cirecleRadius = Math.floor(Math.min(canvasWidth, canvasHeight) / 2);
@@ -12,12 +15,22 @@ let outside = 0;
 const options = p5 => {
   p5.setup = () => {
     p5.createCanvas(canvasWidth, canvasHeight);
+    p5.frameRate(1);
   };
 
+  let numbers = [];
   p5.draw = () => {
-    for (let i = 0; i < 1000; i++) {
-      const x = Math.random() * canvasWidth;
-      const y = Math.random() * canvasHeight;
+    fetch(api)
+      .then(response => {
+        return response.json();
+      })
+      .then(data => {
+        numbers = data.data;
+      });
+
+    for (let i = 0; i < numbers.length; i += 2) {
+      const x = numbers[i] % canvasWidth;
+      const y = numbers[i + 1] % canvasHeight;
 
       const d = Math.sqrt(Math.pow(x - origoX, 2) + Math.pow(y - origoY, 2));
 
